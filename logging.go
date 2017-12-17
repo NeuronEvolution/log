@@ -2,8 +2,9 @@ package log
 
 import (
 	"go.uber.org/zap"
-	"reflect"
 	"log"
+	"os"
+	"reflect"
 )
 
 type SystemLog struct {
@@ -15,11 +16,11 @@ func (l *SystemLog) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func Init(debug bool) {
+func Init() {
 	var l *zap.Logger
 	var err error
 
-	if debug {
+	if os.Getenv("DEBUG") != "" {
 		l, err = zap.NewDevelopment(zap.AddCaller())
 	} else {
 		l, err = zap.NewProduction(zap.AddCaller())
