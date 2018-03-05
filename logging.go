@@ -2,9 +2,10 @@ package log
 
 import (
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"log"
-	"os"
 	"reflect"
+	"time"
 )
 
 type SystemLog struct {
@@ -16,16 +17,14 @@ func (l *SystemLog) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
+func timeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+	enc.AppendString(t.Format("2006-01-02T15:04:05.000"))
+}
+
 func Init() {
-	var l *zap.Logger
-	var err error
-
-	if os.Getenv("DEBUG") != "" {
-		l, err = zap.NewDevelopment(zap.AddCaller())
-	} else {
-		l, err = zap.NewProduction(zap.AddCaller())
-	}
-
+	config := zap.NewProductionConfig()
+	config.EncoderConfig.EncodeTime = timeEncoder
+	l, err := config.Build(zap.AddCaller())
 	if err != nil {
 		log.Fatal(err)
 		return
